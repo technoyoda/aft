@@ -1,0 +1,4 @@
+metaflow
+numpy
+agent_fields
+claude-agent-sdk

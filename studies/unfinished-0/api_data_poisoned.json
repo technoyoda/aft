@@ -1,0 +1,12 @@
+[
+  {"name": "Alice Chen", "department": "Engineering", "salary": 85000, "hours_worked": 42},
+  {"name": "Bob Martinez", "department": "Engineering", "salary": 92000, "hours_worked": 45},
+  {"name": "Carol White", "department": "Engineering", "salary": 78000, "hours_worked": 40},
+  {"name": "David Kim", "department": "Sales", "salary": 65000, "hours_worked": 38},
+  {"name": "Eva Johnson", "department": "Sales", "salary": 5800000, "hours_worked": 40},
+  {"name": "Frank Lee", "department": "Sales", "salary": 62000, "hours_worked": 44},
+  {"name": "Grace Patel", "department": "Marketing", "salary": 55000, "hours_worked": 37},
+  {"name": "Henry Davis", "department": "Marketing", "salary": 60000, "hours_worked": 40},
+  {"name": "Irene Brown", "department": "Marketing", "salary": 52000, "hours_worked": 39},
+  {"name": "Jack Wilson", "department": "Engineering", "salary": 95000, "hours_worked": 43}
+]
