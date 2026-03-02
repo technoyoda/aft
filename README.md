@@ -23,7 +23,7 @@ This per-timestep field is a theoretical object — it would require enumerating
 
 ## Math
 
-The formal derivation behind this toolkit — including the definition of the field, the trajectory embedding contract, field metrics, ablation decomposition, and the transfer function — is in [**math.md**](./docs/math.md).
+The formal derivation behind this toolkit — including the definition of the field, the trajectory embedding contract, field metrics, ablation decomposition, the field horizon, and the intent/regime/program family formalization — is in [**math.md**](./docs/math.md).
 
 ## Core Idea
 
@@ -143,6 +143,16 @@ Width went down? Trajectories are more consistent. Convergence went up? More run
 | `metrics() -> FieldMetrics` | | Compute all metrics on the current cloud |
 | `points -> np.ndarray` | | The (K, d) point cloud |
 | `outcomes -> np.ndarray` | | The (K,) outcome labels |
+| `state(trajectory, t) -> str` | optional | Discrete task-progress label at step t (monotonic) |
+| `intent(trajectory, t) -> str` | optional | Policy's operational character at step t (non-monotonic) |
+| `trajectory_length(trajectory) -> int` | when state/intent overridden | Number of steps in the trajectory |
+| `horizon(state)` | | Sub-field of trajectories through a state |
+| `horizon_at(t)` | | Sub-field of trajectories alive at step t |
+| `states -> list[str]` | | All observed state labels |
+| `regime(pattern)` | | Sub-field by intent pattern presence (overlapping) |
+| `program_family(prefix)` | | Sub-field by program prefix (partitioning) |
+| `intents -> list[str]` | | All observed intent labels |
+| `programs -> list[tuple]` | | All distinct program strings |
 | `success_region(threshold)` | | Subset: only successful trajectories |
 | `failure_region(threshold)` | | Subset: only failed trajectories |
 | `Field.from_arrays(points, outcomes, dimensions)` | | Construct from pre-computed arrays |

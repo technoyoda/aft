@@ -58,7 +58,8 @@ AFT has three objects: `Field`, `Dimension`, and `FieldMetrics`.
 - `measure(trajectory) -> np.ndarray` — takes a trajectory (any data type the user has) and returns a fixed-dimensional numpy vector. This is the measurement function. It determines which behavioral properties become dimensions of the point cloud — only those properties exist for metrics to operate on. Any behavior not captured by a dimension is absent from the cloud and invisible to every metric downstream. Each dimension should capture a behavioral property — what the agent *did*, not how well it did.
 - `dimensions() -> list[Dimension]` — returns metadata for each dimension. Each Dimension has a name and description that make metrics interpretable.
 - `state(trajectory, t) -> str` (optional) — reduces the trajectory prefix up to step t into a discrete label representing semantic progress. The default returns a constant. Override to enable horizon analysis — see "The state function and field horizons" below.
-- `trajectory_length(trajectory) -> int` (required when `state()` is overridden) — returns the number of steps in the trajectory. The framework calls `state(trajectory, t)` for each `t` in `range(trajectory_length(trajectory))`. Override this alongside `state()` to tell the framework how many steps your trajectory type has.
+- `intent(trajectory, t) -> str` (optional) — reads the policy's operational character at step t. Unlike state, intent is non-monotonic — the policy can return to a mode it exhibited earlier (e.g. explore → execute → explore again). The default returns a constant. Override to enable regime and program family analysis — see "The intent function, regimes, and program families" below.
+- `trajectory_length(trajectory) -> int` (required when `state()` or `intent()` is overridden) — returns the number of steps in the trajectory. The framework calls `state(trajectory, t)` and `intent(trajectory, t)` for each `t` in `range(trajectory_length(trajectory))`. Override this alongside `state()` or `intent()` to tell the framework how many steps your trajectory type has.
 
 Then the user feeds trajectories into the field:
 
@@ -84,6 +85,10 @@ The field exposes:
 - `field.horizon(state)` — the sub-field of trajectories that passed through a given state (see "The state function and field horizons" below)
 - `field.horizon_at(t)` — the sub-field of trajectories that were still alive at step t
 - `field.states` — all states observed across trajectories, in first-seen order
+- `field.regime(pattern)` — the sub-field of trajectories whose program string contains the given intent pattern (see "The intent function, regimes, and program families" below)
+- `field.program_family(prefix)` — the sub-field of trajectories whose program string starts with the given prefix
+- `field.intents` — all intent labels observed across trajectories, in first-seen order
+- `field.programs` — all distinct program strings observed, in first-seen order
 - `Field.from_arrays(points, outcomes, dimensions)` — construct from pre-computed arrays
 
 ### FieldMetrics
@@ -246,6 +251,106 @@ Implement `state()` when you want to answer questions like:
 - "Does convergence improve or degrade as the agent progresses?"
 
 Do NOT implement `state()` just because you can. If your analysis only needs the full field metrics, the default (single state) is sufficient. State adds a slicing language on top of the existing measurement — it is optional because `measure()` already captures the superset of behavioral information.
+
+## The intent function, regimes, and program families
+
+### The intent function
+
+`intent(trajectory, t) -> str` is an optional method on Field. It reads the policy's operational character at step t — not where in the task the agent is (that's `state()`), but *how the policy is operating*: exploring, executing, recovering, verifying.
+
+The default implementation returns a constant (`"_"`), meaning all steps share one intent. Override it when you want to analyze policy behavior patterns.
+
+**How intent differs from state:**
+
+- **State is monotonic.** Task progress only advances: start → oriented → fixed → verified. The agent never goes back to "start."
+- **Intent is non-monotonic.** The policy can explore, then execute, then explore again when it hits a wall. Recurrence is intrinsic.
+
+This non-monotonicity is what makes intent analytically rich. At ingestion, the framework computes the intent at each step, producing an **intent sequence**. Collapsing consecutive identical labels (run-length encoding) yields the **program string** — the skeleton of the policy's computational architecture.
+
+Example: raw intent sequence `[exploring, exploring, executing, executing, recovering, exploring, executing, verifying]` produces program string `(exploring, executing, recovering, exploring, executing, verifying)`.
+
+**Design principles:**
+
+- **Intent is discrete.** Like state, it returns a string label. The labels are the user's hypothesis about the policy's operational character.
+- **Intent is non-monotonic.** The same label can appear multiple times. Do NOT enforce ordering.
+- **Intent reads the policy's signal.** State reads the task's signal (what milestones have been achieved). Intent reads the policy's signal (what is the agent attempting right now).
+- **Division of labor.** `state()` captures *where*. `measure()` captures *what*. `intent()` captures *how*.
+
+```python
+def intent(self, trajectory, t):
+    steps = trajectory.steps[:t + 1]
+    last_tool = steps[-1].tool_name if steps else None
+    if last_tool == "Read": return "exploring"
+    if last_tool == "Edit": return "executing"
+    if last_tool == "Bash":
+        cmd = str((steps[-1].tool_input or {}).get("command", ""))
+        if "python" in cmd or "pytest" in cmd:
+            return "verifying"
+    if _recent_test_failed(trajectory, t):
+        return "recovering"
+    return "orienting"
+```
+
+### Regimes
+
+A **regime** is the sub-field of trajectories whose program string contains a given pattern. A single label is a length-1 pattern; a tuple is a sequential motif.
+
+```python
+# All trajectories where "exploring" appears in the program
+exploring = field.regime("exploring")
+
+# All trajectories where the motif [executing, recovering, executing] appears
+recovery_loop = field.regime(("executing", "recovering", "executing"))
+```
+
+**Regimes overlap.** A trajectory can match many patterns. This is structurally different from horizons (which nest) and program families (which partition).
+
+The analytical motion is **comparison**: the exploring regime has width X, the recovery-loop regime has width Y. Trajectories where the recovery pattern appeared have lower convergence than those where it didn't.
+
+### Program families
+
+A **program family** is the sub-field of trajectories whose program string starts with a given prefix.
+
+```python
+# All trajectories that started with [exploring, executing]
+clean_start = field.program_family(("exploring", "executing"))
+
+# Exact program match — all distinct programs
+for prog in field.programs:
+    fam = field.program_family(prog)
+    sr = fam.success_region().K / fam.K if fam.K else 0
+    print(f"{prog}: K={fam.K}, success={sr:.0%}")
+```
+
+**Program families partition** at any prefix depth. Every trajectory belongs to exactly one family at any given depth. No overlap.
+
+The analytical motion is **variance decomposition**: if within-family width is much smaller than total width, the field's variation is structural (different programs produce different behaviors). If within-family width is comparable to total width, the variation is parametric (same program, different execution).
+
+### Composing intent with horizons
+
+All sub-field operations compose. Because `subset()` carries sequences through, you can chain:
+
+```python
+# Horizon x Regime: at state "editing", what did the recovery regime look like?
+editing = field.horizon("editing")
+recovery = editing.regime("recovering")
+print(f"editing x recovering: K={recovery.K}, width={recovery.metrics().width():.3f}")
+
+# Horizon x Family: among clean-start programs, how many reached "verified"?
+clean = field.program_family(("exploring", "executing"))
+verified = clean.horizon("verified")
+```
+
+### When to implement intent()
+
+Implement `intent()` when you want to answer questions like:
+
+- "What behavioral patterns does the policy exhibit, and which ones predict success?"
+- "Do trajectories that go through a recovery loop have lower convergence?"
+- "What program architectures does the agent use, and do they diverge at a specific point?"
+- "At state X, are the failing trajectories in a different intent than the succeeding ones?"
+
+Do NOT implement `intent()` just because you can. If your analysis only needs field metrics and horizons, the default (single intent) is sufficient. Intent adds a vocabulary for reasoning about the policy's operational structure — it is optional because `measure()` and `state()` already cover what the agent did and where it got to.
 
 ## Example: CodeFixField
 

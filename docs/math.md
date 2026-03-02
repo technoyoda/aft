@@ -105,7 +105,7 @@ Any behavior not captured by $\varphi$ is absent from the cloud and invisible to
 
 $\varphi$ is, at this stage, a **theoretical object**. It is a contract that says: "give me a trajectory, I return a fixed-dimensional vector." The formalism does not prescribe *how* $\varphi$ is implemented — it may be a hand-crafted feature vector, a learned embedding, or a bag of heuristics. It only requires the interface be honored: trajectory in, vector in $\mathbb{R}^d$ out.
 
-The mathematical machinery in Sections 4–6 (field metrics, ablation decomposition, field horizon) operates on the **output** of $\varphi$, not on its internals. The formalism gives us the interface; a physical implementation gives us the data structure.
+The mathematical machinery in Sections 4–7 (field metrics, ablation decomposition, field horizon, intent) operates on the **output** of $\varphi$, not on its internals. The formalism gives us the interface; a physical implementation gives us the data structure.
 
 ---
 
@@ -284,7 +284,96 @@ where $\mathcal{H}^+(s)$ is the horizon restricted to successful trajectories. $
 
 ---
 
-## 7. Experimental Pipeline
+## 7. Intent and the Policy Lens
+
+The measurement function $\varphi$ captures *what the agent did*. The state function $\psi$ captures *where in the task the agent is*. Neither captures *how the policy is operating* — the qualitative character of the policy's behavior at each step. Two trajectories can reach the same task state with identical behavioral measurements yet differ in their operational character: one is in confident execution, the other is recovering from a failed attempt. The **intent function** reads this character from the trajectory.
+
+### 7.1 The Intent Function
+
+**Definition (Intent Function).** A function $\rho_\pi: \mathcal{T} \times \mathbb{N} \to \mathcal{I}$ that assigns an intent label to each step of a trajectory:
+
+$$\rho_\pi(\tau, t) \in \mathcal{I}$$
+
+where $\mathcal{I}$ is a finite alphabet of intent labels defined by the user.
+
+Like $\psi$, the intent function takes a trajectory and a step index. Like $\psi$, it returns a discrete label. The structural difference: **intent is non-monotonic.** The policy can explore, then execute, then explore again when it hits a wall. Recurrence is intrinsic to how policies operate.
+
+| | $\psi$ (state) | $\rho_\pi$ (intent) |
+|---|---|---|
+| **Serves** | The trajectory | The policy |
+| **Answers** | *Where* in the task? | *How* is the policy operating? |
+| **Output** | Discrete label (monotonic) | Discrete label (non-monotonic) |
+| **Dynamics** | Linear progression | Recurrent, variable |
+
+### 7.2 Intent Sequence and Program String
+
+At ingestion, the field computes the intent at each step, producing the **intent sequence**:
+
+$$[\rho_\pi(\tau_k, 0),\; \rho_\pi(\tau_k, 1),\; \ldots,\; \rho_\pi(\tau_k, T_k - 1)]$$
+
+Collapsing consecutive identical labels via run-length encoding yields the **program string**:
+
+$$\pi(\tau_k) = \text{RLE}([\rho_\pi(\tau_k, 0), \ldots, \rho_\pi(\tau_k, T_k - 1)])$$
+
+The program string is a string over the alphabet $\mathcal{I}$, variable length across trajectories. It discards dwell time and preserves transitions — the policy's architectural skeleton.
+
+### 7.3 The Regime
+
+**Definition (Regime).** Given a pattern $p$ (a contiguous subsequence over $\mathcal{I}$), the regime is:
+
+$$\mathcal{R}(p) = \lbrace\varphi(\tau_k) : p \sqsubseteq \pi(\tau_k)\rbrace$$
+
+where $p \sqsubseteq s$ means $p$ appears as a contiguous subsequence of $s$.
+
+**Key property: regimes overlap.** A trajectory whose program contains multiple patterns belongs to multiple regimes simultaneously. This is structurally different from horizons, which nest ($\mathcal{H}(s_n) \subseteq \mathcal{H}(s_{n-1})$).
+
+$\mathcal{R}(p)$ is a sub-field. All field metrics ($W$, $C$, $\mu$, $S$) apply directly.
+
+### 7.4 The Program Family
+
+**Definition (Program Family).** Given a prefix $G$ over $\mathcal{I}$, the program family is:
+
+$$\mathcal{F}_G = \lbrace\varphi(\tau_k) : \pi(\tau_k) \text{ has prefix } G\rbrace$$
+
+**Key property: families partition at any prefix length $d$.** Every trajectory belongs to exactly one family at depth $d$. No overlap.
+
+The set of all program strings forms a conceptual **prefix tree (trie)**. Each path from root to leaf is one program string. Families are subtrees at a chosen depth — hierarchical grouping without parameters.
+
+### 7.5 Variance Decomposition
+
+At any prefix depth $d$, the program families $\lbrace\mathcal{F}_{G_1}, \mathcal{F}_{G_2}, \ldots\rbrace$ partition the field. The field width decomposes:
+
+$$W = W_{\text{between}} + W_{\text{within}}$$
+
+where $W_{\text{between}}$ is the variance of family centroids around the field centroid, and $W_{\text{within}}$ is the average within-family variance.
+
+If $W_{\text{within}} \ll W$ for all families, the field's variation is **structural** — different programs produce different behaviors. If $W_{\text{within}} \approx W$, the variation is **parametric** — same program, different execution.
+
+### 7.6 Composability
+
+Intent composes with existing field structures:
+
+**Horizon $\times$ Regime:**
+
+$$\mathcal{H}(s) \cap \mathcal{R}(p)$$
+
+Trajectories that reached state $s$ AND where pattern $p$ appeared. This reveals: at a given task milestone, what was the policy doing?
+
+**Horizon $\times$ Family:**
+
+$$\mathcal{H}(s) \cap \mathcal{F}_G$$
+
+Among trajectories running a given program, how many reached state $s$?
+
+**Intent-aware drift:**
+
+$$\Delta\mathcal{I}(s) = P(m \mid s, y=1) - P(m \mid s, y=0)$$
+
+Not just "failures are wider at state $s$," but "failures at state $s$ are in intent $m$ while successes are in intent $m'$." The drift has a cause.
+
+---
+
+## 8. Experimental Pipeline
 
 The concrete steps required to build this:
 
@@ -294,24 +383,25 @@ The concrete steps required to build this:
 4. **Feature Extraction.** Implement $\varphi(\tau)$ to embed trajectories into $\mathbb{R}^d$.
 5. **Ablation Execution.** Systematically vary factors per Section 5; collect field samples.
 6. **Horizon Analysis.** Define $\psi$, compute horizons at each state, monitor drift $\delta(s)$ per Section 6.
+7. **Intent Analysis.** Define $\rho_\pi$, compute program strings, construct regimes and program families per Section 7.
 
 ---
 
-## 8. Key Insight: Formalism as Interface, Not Implementation
+## 9. Key Insight: Formalism as Interface, Not Implementation
 
 The model's weights, gradients, and logits are never required. The field is reconstructed entirely from **behavioral observations under controlled perturbation**. The model is treated as a stochastic oracle — what we are doing is **system identification on a black box**, which is classical engineering.
 
 Because each factor is toggled independently with all others held constant, the ablation design isolates per-factor effects. The strength of the causal claim depends on the degree to which factors are truly independent and the environment is fully specified — assumptions that should be validated per experiment.
 
-### 8.1 What the Formalism Buys Us
+### 9.1 What the Formalism Buys Us
 
-Everything in Sections 1–6 is pure mathematical formalism. The objects — $\varphi$, $\psi$, $\mathcal{F}$, $\mathcal{H}$, $W$, $C$ — are theoretical. They are not data structures, not code, not implementations. This is deliberate, and it buys two things:
+Everything in Sections 1–7 is pure mathematical formalism. The objects — $\varphi$, $\psi$, $\rho_\pi$, $\mathcal{F}$, $\mathcal{H}$, $\mathcal{R}(p)$, $\mathcal{F}_G$, $\pi(\tau_k)$, $W$, $C$ — are theoretical. They are not data structures, not code, not implementations. This is deliberate, and it buys two things:
 
-1. **It tells us what to build.** We now know we need: a thing that eats trajectories and produces vectors ($\varphi$ — see [METRICS.md](./METRICS.md) for what operates on its output), a thing that reduces prefixes into progress labels ($\psi$), a thing that holds clouds of those vectors ($\hat{\mathcal{F}}$), a thing that filters clouds by state ($\mathcal{H}$), and a thing that computes metrics on those clouds ($W$, $C$, $\mu$, $S$ — see [METRICS.md](./METRICS.md) for semantics). The math specifies the *interface* — trajectory in, vector out, cloud in, scalar out — not the implementation.
+1. **It tells us what to build.** We now know we need: a thing that eats trajectories and produces vectors ($\varphi$ — see [METRICS.md](./METRICS.md) for what operates on its output), a thing that reduces prefixes into progress labels ($\psi$), a thing that reads the policy's operational character ($\rho_\pi$), a thing that holds clouds of those vectors ($\hat{\mathcal{F}}$), a thing that filters clouds by state ($\mathcal{H}$), by behavioral pattern ($\mathcal{R}$), or by program lineage ($\mathcal{F}_G$), and a thing that computes metrics on those clouds ($W$, $C$, $\mu$, $S$ — see [METRICS.md](./METRICS.md) for semantics). The math specifies the *interface* — trajectory in, vector out, cloud in, scalar out — not the implementation.
 
 2. **It tells us what questions are answerable.** Before writing a single line of code, we already know: if we can construct $\varphi$ and collect enough trajectories, then ablation decomposition and drift detection are computable from existing objects. Extensions like the response surface and transfer function build on top — see [EXTENSIONS.md](./EXTENSIONS.md).
 
-### 8.2 The Practical Boundary
+### 9.2 The Practical Boundary
 
 The next step — the physical implementation — is about choosing concrete data structures for $\varphi$, concrete storage for $\hat{\mathcal{F}}$, and concrete compute for the metrics. The math does not care if $\varphi$ is a hand-crafted feature vector, a learned embedding, or a bag of heuristics. It only requires the contract be honored: trajectory in, fixed-dimension vector out. The construction of $\varphi$ and $\mathcal{F}$ as formalism is what allows us to now reason about practical use cases of these objects — how we actually figure out a physical implementation.
 

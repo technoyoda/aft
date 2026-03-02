@@ -177,6 +177,71 @@ for t in range(10):
 
 All states observed across trajectories, in first-seen order.
 
+### `intent(trajectory, t) → str`
+
+The intent function $\rho_\pi$ — reads the policy's operational character at step $t$ from the trajectory prefix. See [math.md §7.1](./math.md#71-the-intent-function).
+
+Optional. The default returns a constant (all steps share one intent). Override to define meaningful policy characters and enable regime/program family analysis.
+
+Unlike `state()`, intent is **non-monotonic** — the policy can return to a mode it exhibited earlier (e.g. explore → execute → explore). The sequence of intents, collapsed by run-length encoding, produces the program string.
+
+```python
+def intent(self, trajectory, t):
+    steps = trajectory.steps[:t + 1]
+    last_tool = steps[-1].tool_name if steps else None
+    if last_tool == "Read": return "exploring"
+    if last_tool == "Edit": return "executing"
+    if last_tool == "Bash": return "verifying"
+    return "orienting"
+```
+
+### `regime(pattern) → Field`
+
+The sub-field of trajectories whose program string contains the given pattern — see [math.md §7.3](./math.md#73-the-regime).
+
+$$\mathcal{R}(p) = \lbrace\varphi(\tau_k) : p \sqsubseteq \pi(\tau_k)\rbrace$$
+
+A single label is a length-1 pattern. A tuple is a sequential motif. Regimes overlap: a trajectory can match many patterns.
+
+```python
+# Single intent
+exploring = field.regime("exploring")
+
+# Sequential motif
+recovery_loop = field.regime(("executing", "recovering", "executing"))
+
+# Composition with horizons
+editing = field.horizon("editing")
+sub = editing.regime("recovering")
+```
+
+### `intents → list[str]`
+
+All intent labels observed across trajectories, in first-seen order. Parallel to `states`.
+
+### `program_family(prefix) → Field`
+
+The sub-field of trajectories whose program string starts with the given prefix — see [math.md §7.4](./math.md#74-the-program-family).
+
+$$\mathcal{F}_G = \lbrace\varphi(\tau_k) : \pi(\tau_k) \text{ has prefix } G\rbrace$$
+
+At full program length this is exact match. At shorter lengths this groups trajectories sharing the same opening intent sequence. Program families partition at any depth.
+
+```python
+# All trajectories that started exploring then executing
+clean_start = field.program_family(("exploring", "executing"))
+
+# Exact program match
+for prog in field.programs:
+    fam = field.program_family(prog)
+    sr = fam.success_region().K / fam.K if fam.K else 0
+    print(f"{prog}: K={fam.K}, success={sr:.0%}")
+```
+
+### `programs → list[tuple[str, ...]]`
+
+All distinct program strings observed across trajectories, in first-seen order. Each program string is a tuple of intent labels after run-length encoding.
+
 ### `Field.from_arrays(points, outcomes, dimensions) → Field`
 
 Construct a `Field` directly from pre-computed numpy arrays. Use this when you already have embedded vectors and don't need the `measure()` pipeline.

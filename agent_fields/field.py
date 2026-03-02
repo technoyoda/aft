@@ -90,6 +90,14 @@ class Field(ABC, Generic[T]):
         horizon analysis: ``field.horizon("diagnosed")`` returns the sub-field
         of trajectories that reached the "diagnosed" state, with full metrics.
 
+        Optionally override ``intent(trajectory, t)`` — the intent function
+        (rho_pi). It reads the policy's operational character at each step.
+        Unlike state, intent is non-monotonic — the policy can return to
+        modes it exhibited earlier. This enables regime and program family
+        analysis: ``field.regime("exploring")`` returns the sub-field where
+        the exploring pattern appeared, ``field.program_family(("exploring",
+        "executing"))`` returns trajectories sharing that program prefix.
+
         Then feed it trajectories via ``add()`` or ``ingest()``, and call
         ``metrics()`` to compute field metrics on the accumulated cloud.
     """
@@ -99,6 +107,7 @@ class Field(ABC, Generic[T]):
         self._outcomes: list[float] = []
         self._raw: list[T] = []
         self._state_sequences: list[list[str]] = []
+        self._intent_sequences: list[list[str]] = []
 
     # ── The contract: user implements these ─────────────────────────────
 
@@ -163,9 +172,10 @@ class Field(ABC, Generic[T]):
     def trajectory_length(self, trajectory: T) -> int:
         """Return the number of steps in the trajectory.
 
-        Required when ``state()`` is overridden. The framework calls this
-        to know how many times to invoke ``state(trajectory, t)`` — once
-        for each ``t`` in ``range(trajectory_length(trajectory))``.
+        Required when ``state()`` or ``intent()`` is overridden. The
+        framework calls this to know how many times to invoke
+        ``state(trajectory, t)`` and ``intent(trajectory, t)`` — once for
+        each ``t`` in ``range(trajectory_length(trajectory))``.
 
         The default raises NotImplementedError. Override it to return the
         step count for your trajectory type.
@@ -180,6 +190,33 @@ class Field(ABC, Generic[T]):
             "trajectory_length() must be implemented when state() is overridden. "
             "Return the number of steps in your trajectory type."
         )
+
+    def intent(self, trajectory: T, t: int) -> str:  # noqa: ARG002
+        """The policy's operational character at step t.
+
+        This is rho_pi — the intent function. It answers "how is the policy
+        operating?" by reading the qualitative character of the policy's
+        behavior from the trajectory prefix up to step t.
+
+        Unlike state(), intent is non-monotonic — the policy can return to
+        an intent it exhibited earlier (e.g. explore → execute → explore).
+        The sequence of intents, collapsed by run-length encoding, produces
+        the program string — the skeleton of the policy's computational
+        architecture.
+
+        The default returns a constant — all steps share one intent,
+        meaning regime() returns the full field. Override to define
+        meaningful policy characters (e.g. "exploring", "executing",
+        "recovering", "verifying").
+
+        Args:
+            trajectory: the full trajectory.
+            t: the step index (0-based).
+
+        Returns:
+            A discrete label (typically a string).
+        """
+        return "_"
 
     # ── Ingestion ──────────────────────────────────────────────────────
 
@@ -205,6 +242,9 @@ class Field(ABC, Generic[T]):
             n = 1  # default state() returns "_" — one step suffices
         seq = [self.state(trajectory, t) for t in range(n)]
         self._state_sequences.append(seq)
+
+        intent_seq = [self.intent(trajectory, t) for t in range(n)]
+        self._intent_sequences.append(intent_seq)
 
         return vector
 
@@ -269,7 +309,15 @@ class Field(ABC, Generic[T]):
         """
         pts = self.points[mask]
         outs = self.outcomes[mask]
-        return _MaterializedField(pts, outs, self.dimensions())
+        sub = _MaterializedField(pts, outs, self.dimensions())
+        # Carry through sequences so horizon/regime/program_family chain
+        sub._state_sequences = [
+            s for s, m in zip(self._state_sequences, mask) if m
+        ]
+        sub._intent_sequences = [
+            s for s, m in zip(self._intent_sequences, mask) if m
+        ]
+        return sub
 
     def success_region(self, threshold: float = 0.5) -> _MaterializedField:
         """The region of the field where trajectories succeeded."""
@@ -302,11 +350,7 @@ class Field(ABC, Generic[T]):
             mask = self._trajectories_through(state)
         else:
             mask = self._trajectories_through_any(state)
-        return _MaterializedField(
-            self.points[mask],
-            self.outcomes[mask],
-            self.dimensions(),
-        )
+        return self.subset(mask)
 
     @property
     def states(self) -> list[str]:
@@ -331,11 +375,7 @@ class Field(ABC, Generic[T]):
             t: the step index (0-based).
         """
         mask = np.array([len(seq) > t for seq in self._state_sequences])
-        return _MaterializedField(
-            self.points[mask],
-            self.outcomes[mask],
-            self.dimensions(),
-        )
+        return self.subset(mask)
 
     def _trajectories_through(self, state: str) -> np.ndarray:
         """Boolean mask: which trajectories passed through this state."""
@@ -353,6 +393,88 @@ class Field(ABC, Generic[T]):
             if state_set.intersection(seq):
                 mask[k] = True
         return mask
+
+    # ── Intent / Program ──────────────────────────────────────────────
+
+    def _program_string(self, k: int) -> tuple[str, ...]:
+        """Run-length encode the intent sequence into a program string."""
+        seq = self._intent_sequences[k]
+        if not seq:
+            return ()
+        result = [seq[0]]
+        for label in seq[1:]:
+            if label != result[-1]:
+                result.append(label)
+        return tuple(result)
+
+    @staticmethod
+    def _contains_subsequence(
+        program: tuple[str, ...], pattern: tuple[str, ...]
+    ) -> bool:
+        """Check if pattern appears as a contiguous subsequence of program."""
+        n, m = len(program), len(pattern)
+        return any(program[i : i + m] == pattern for i in range(n - m + 1))
+
+    def regime(self, pattern: str | tuple[str, ...]) -> _MaterializedField:
+        """The sub-field of trajectories whose program string contains *pattern*.
+
+        A single label is a length-1 pattern — ``regime("exploring")``
+        checks if ``"exploring"`` appears anywhere in the program string.
+        A tuple is a sequential motif — ``regime(("executing", "recovering",
+        "executing"))`` checks for that contiguous subsequence.
+
+        Regimes overlap: a trajectory can match many patterns.
+
+        Args:
+            pattern: a single intent label, or a tuple of labels.
+        """
+        if isinstance(pattern, str):
+            pattern = (pattern,)
+        mask = np.array(
+            [
+                self._contains_subsequence(self._program_string(k), pattern)
+                for k in range(self.K)
+            ]
+        )
+        return self.subset(mask)
+
+    @property
+    def intents(self) -> list[str]:
+        """All intent labels observed across trajectories, in first-seen order."""
+        seen: dict[str, int] = {}
+        for seq in self._intent_sequences:
+            for label in seq:
+                if label not in seen:
+                    seen[label] = len(seen)
+        return list(seen.keys())
+
+    def program_family(self, prefix: tuple[str, ...]) -> _MaterializedField:
+        """The sub-field of trajectories whose program string starts with *prefix*.
+
+        At full program length this is exact match. At shorter lengths
+        this groups all trajectories sharing the same opening intent
+        sequence — a subtree of the program trie.
+
+        Program families partition at any prefix depth.
+
+        Args:
+            prefix: tuple of intent labels defining the required prefix.
+        """
+        plen = len(prefix)
+        mask = np.array(
+            [self._program_string(k)[:plen] == prefix for k in range(self.K)]
+        )
+        return self.subset(mask)
+
+    @property
+    def programs(self) -> list[tuple[str, ...]]:
+        """All distinct program strings observed, in first-seen order."""
+        seen: dict[tuple[str, ...], int] = {}
+        for k in range(self.K):
+            p = self._program_string(k)
+            if p not in seen:
+                seen[p] = len(seen)
+        return list(seen.keys())
 
 
 class _MaterializedField(Field[Any]):

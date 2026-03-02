@@ -20,7 +20,9 @@ The user implements two functions, plus a helper:
 
 - **`state(trajectory, t)`** — the state function $\psi$. Defines what semantic progress looks like for their task. Returns a discrete label at each step: "start", "diagnosed", "fixed", "verified". This provides the vocabulary for slicing the field by phase. This allow us to ask questions like "at what point do trajectories start diverging?" The user defines states at full resolution; queries can group them at analysis time.
 
-- **`trajectory_length(trajectory)`** — tells the framework how many steps the trajectory has, so that `state()` can be evaluated at each step.
+- **`intent(trajectory, t)`** — the intent function $\rho_\pi$. Optional. A hypothesis about the policy's operational character at each step — exploring, executing, recovering, verifying. Unlike `state()`, intent is non-monotonic: the policy can return to a mode it exhibited earlier. The sequence of intents, collapsed by run-length encoding, produces a **program string** — the skeleton of the computational architecture the policy executed.
+
+- **`trajectory_length(trajectory)`** — tells the framework how many steps the trajectory has, so that `state()` and `intent()` can be evaluated at each step.
 
 ## What they get back
 
@@ -29,6 +31,10 @@ Analytical tools grounded in the [mathematical formulation](./math.md):
 - **Field metrics** — [width](./METRICS.md#width--scalar) (behavioral diversity), [center](./METRICS.md#center--mathbbrd) (average behavior), [variance](./METRICS.md#variance--mathbbrd) (per-dimension spread), [convergence](./METRICS.md#convergence--scalar) (outcome reliability), [separation](./METRICS.md#separationthreshold--mathbbrd) (what distinguishes success from failure), [skew](./METRICS.md#skewcost_dim--scalar) (whether success is cheap or expensive along a dimension).
 
 - **Horizons** — the field at a specific [state](./math.md#62-the-field-horizon). Every horizon is itself a field with full metrics. Walk the horizon chain to find where trajectories diverge. Compare horizons across configurations to see whether an intervention changed behavior at the phase that matters.
+
+- **Regimes** — the sub-field of trajectories whose program string contains a given [behavioral pattern](./math.md#73-the-regime). Regimes overlap: a trajectory can match many patterns. Compare regimes to see what the field looks like when the policy exhibits different operational characters.
+
+- **Program families** — the sub-field of trajectories sharing a common [program prefix](./math.md#74-the-program-family). Families partition the field at any prefix depth. The variance decomposition separates structural diversity (different programs) from parametric diversity (same program, different execution).
 
 - **Ablation decomposition** — [compare fields](./math.md#5-ablation-decomposition--the-core-derivation) across different environments, prompts, or models. Isolate which lever moved the distribution and how.
 
@@ -40,7 +46,9 @@ The intention of these tools is a different frame of thinking. Not "did the agen
 
 The [Field](./math.md#2-the-empirical-field-as-a-distribution) is a logical abstraction over the search space. Since we cannot know the full search space of the policy — the [pre-trained distribution](https://technoyoda.github.io/agent-search.html#heading-4) and the [RL-shaped policy](https://technoyoda.github.io/agent-search.html#heading-5) are opaque — we construct fields as a way to measure how much the agent aligns with the search space we are bounding via the environment and the system prompt.
 
-The choice of `measure()` determines the space. The choice of `state()` determines the temporal vocabulary. Different choices produce different fields from the same trajectory data, answering different questions. This is by design — the formalism is general, the measurement is specific to the task and the decision the user needs to make.
+The choice of `measure()` determines the space. The choice of `state()` determines the temporal vocabulary. The choice of `intent()` determines the policy vocabulary — how the field reads the policy's operational character from the trajectory. The policy is opaque: we did not train it and cannot inspect its weights. But the trajectory reveals qualitative shifts — exploration, execution, recovery — and `intent()` is the user's hypothesis about those shifts. The program string it produces is the compressed record of the policy's computational architecture, and regimes and program families are the analytical tools that make that architecture visible.
+
+Different choices produce different fields from the same trajectory data, answering different questions. This is by design — the formalism is general, the measurement is specific to the task and the decision the user needs to make.
 
 ### The state function as projection
 
