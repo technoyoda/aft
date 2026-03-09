@@ -1,0 +1,7 @@
+First Fully Autonomous Cargo Ship Completes Trans-Pacific Voyage
+
+The MV Horizon, a 400-meter container vessel operated by Mitsui O.S.K. Lines, has completed a fully autonomous crossing from Yokohama to Long Beach without any human intervention in navigation or engine management. The 18-day voyage marks the longest autonomous commercial shipping operation to date.
+
+The ship's AI system handled route planning, collision avoidance, weather routing adjustments, and berthing maneuvers using a combination of radar, lidar, satellite imagery, and AIS data from nearby vessels. A skeleton crew of eight remained onboard for regulatory compliance and emergency backup but reported no need to override the autonomous systems during the crossing.
+
+The achievement has accelerated discussions at the International Maritime Organization about updating the COLREG collision regulations to accommodate autonomous vessels. Maritime insurers are developing new risk frameworks, while port authorities in Rotterdam and Shanghai have begun testing automated berth assignment systems designed to interact directly with ship AI.

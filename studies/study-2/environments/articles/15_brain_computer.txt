@@ -1,0 +1,7 @@
+Paralyzed Patient Types 90 Words Per Minute Using Brain-Computer Interface
+
+A patient with complete paralysis from amyotrophic lateral sclerosis has achieved a typing speed of 90 words per minute using a next-generation brain-computer interface developed by BrainGate. The system decodes intended handwriting movements from neural signals in the motor cortex, converting imagined pen strokes into text on a screen.
+
+The device uses a 256-electrode array implanted on the surface of the precentral gyrus, capturing signals from a brain area that previously controlled hand movement. A recurrent neural network trained on the patient's imagined handwriting samples translates neural patterns into individual characters with 99.1 percent accuracy after autocorrection.
+
+Previous brain-computer interfaces for communication achieved speeds of roughly 40 words per minute. The doubling in speed brings the technology closer to natural conversational rates, which typically range from 120 to 150 words per minute. The research team is now working on a wireless version of the implant that would eliminate the percutaneous cable currently required to transmit data from the electrode array.

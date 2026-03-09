@@ -1,0 +1,7 @@
+First Gene Therapy for Inherited Deafness Shows Promising Results
+
+A clinical trial in China has restored partial hearing in five out of six children born with profound deafness caused by mutations in the OTOF gene. The therapy delivers a functional copy of otoferlin — a protein essential for transmitting sound signals from inner ear hair cells to the auditory nerve — using an adeno-associated virus vector.
+
+Four months after treatment, the children demonstrated the ability to perceive conversational speech and respond to their names without hearing aids. Audiometric testing showed hearing thresholds improved by 40 to 60 decibels across speech-relevant frequencies. The single child who did not respond had pre-existing structural abnormalities in the cochlea.
+
+The OTOF gene is unusually large, requiring the research team to split the gene across two viral vectors that recombine inside target cells. This dual-vector approach could be adapted for other genetic conditions involving large genes that exceed the carrying capacity of standard gene therapy vehicles.

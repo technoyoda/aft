@@ -1,0 +1,7 @@
+Study Links Irregular Sleep Patterns to Accelerated Cognitive Decline
+
+A longitudinal study tracking 3,400 adults over seven years has found that individuals with highly variable sleep schedules — defined as more than 90 minutes of variation in bedtime or wake time across the week — showed cognitive decline equivalent to aging an additional 4.3 years compared to regular sleepers.
+
+The research, published in the journal Neurology, controlled for total sleep duration, meaning that irregular sleepers showed worse outcomes even when they averaged the same total hours as consistent sleepers. Brain imaging of a subset of 800 participants revealed that sleep variability was associated with reduced volume in the hippocampus and prefrontal cortex.
+
+The mechanism appears to involve disruption of glymphatic clearance, the brain's waste removal system that operates primarily during sleep. Irregular schedules fragment the deep sleep phases when glymphatic flow peaks, potentially allowing toxic protein accumulation. The findings suggest that sleep consistency may be as important as sleep duration for long-term brain health.

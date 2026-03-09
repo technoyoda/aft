@@ -1,0 +1,7 @@
+Large-Scale Study Finds AI Tutoring Improves Math Scores by 0.4 Standard Deviations
+
+A randomized controlled trial involving 28,000 middle school students across 200 schools found that students using an AI-powered tutoring system for 30 minutes daily improved their mathematics scores by 0.4 standard deviations compared to a control group receiving conventional instruction. The effect size is comparable to moving from the 50th to the 66th percentile.
+
+The AI tutor adapts problem difficulty and instructional approach in real time based on student responses, error patterns, and engagement metrics. Students who struggled with fractions, for example, received additional visual representations and worked through scaffolded problem sequences before advancing. The system also identified students at risk of disengagement and adjusted its interaction style accordingly.
+
+Teachers in the treatment group reported spending 40 percent less time on routine practice supervision, redirecting their attention to small-group instruction and individual student support. Critics of educational AI caution that the study period was only one academic year and that longer-term effects on mathematical reasoning and student autonomy remain unknown.

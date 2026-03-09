@@ -1,0 +1,7 @@
+Quantum Computing Reaches New Milestone in Error Correction
+
+Researchers at MIT have demonstrated a breakthrough in quantum error correction that brings fault-tolerant quantum computing significantly closer to reality. The team successfully maintained a logical qubit with an error rate below the threshold needed for practical computation, sustaining coherence for over 100 microseconds.
+
+The experiment used a surface code approach with 72 physical qubits to encode a single logical qubit. By implementing real-time feedback loops that detect and correct errors as they occur, the researchers achieved an effective error rate of 0.1 percent — roughly ten times better than previous attempts using similar hardware.
+
+Industry experts say this result could accelerate the timeline for quantum advantage in drug discovery and materials science. Current quantum processors are limited to roughly 1,000 qubits, but the error correction technique demonstrated here suggests that useful computation could be achieved with as few as 10,000 physical qubits rather than the millions previously estimated.

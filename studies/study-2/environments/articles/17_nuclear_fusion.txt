@@ -1,0 +1,7 @@
+Private Fusion Company Achieves Sustained Plasma at 100 Million Degrees
+
+Commonwealth Fusion Systems has sustained a plasma at 100 million degrees Celsius for 11 seconds in its SPARC tokamak reactor, marking the longest sustained burn at fusion-relevant temperatures achieved outside a national laboratory. The milestone was enabled by the company's high-temperature superconducting magnets, which generate magnetic fields twice as strong as conventional superconductors.
+
+The stronger magnets allow the reactor to be built at roughly one-fortieth the volume of ITER, the international fusion project under construction in France, while achieving comparable plasma performance. The compact design significantly reduces construction costs and timelines, with Commonwealth Fusion projecting a net-electricity-producing demonstration by 2028.
+
+Several utility companies have signed preliminary agreements to evaluate fusion power plants for their generation portfolios. However, significant engineering challenges remain, including developing materials for the reactor wall that can withstand the intense neutron flux produced during fusion reactions and demonstrating the tritium breeding systems needed to fuel continuous operation.

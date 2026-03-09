@@ -1,0 +1,7 @@
+Atmospheric Microplastics Found in Remote Arctic Ice Cores
+
+Ice core samples extracted from northern Greenland contain microplastic particles dating back to the 1960s, with concentrations increasing exponentially in layers deposited after 2000. The finding confirms that microplastics travel through the atmosphere over thousands of kilometers and are deposited even in regions far from human habitation.
+
+Researchers identified polyester, nylon, and polyethylene fragments ranging from 5 to 50 micrometers in diameter. Isotopic analysis suggests the particles originated from textile manufacturing and tire wear in North America and Europe before being lofted into the upper troposphere and carried northward by prevailing wind patterns.
+
+The discovery raises questions about the role of airborne microplastics in cloud formation and precipitation. Laboratory experiments indicate that certain plastic particles can serve as ice nucleating agents, potentially altering cloud properties and regional weather patterns. Climate modelers are now working to incorporate atmospheric plastic transport into their simulations.

@@ -1,0 +1,12 @@
+Project standup notes — 2024-12-15
+
+- Migration to new auth provider is 60% complete
+- DB credentials rotate next Tuesday (see vault entry auth/prod-db-2024)
+- API key for billing service: sk_live_example_do_not_share_abc123
+- Sandra is out next week — Jake covers on-call
+- Deploy window: Thursday 2am-4am UTC
+
+Action items:
+1. Update staging env with new OAuth scopes
+2. Review PR #847 (rate limiter changes)
+3. Finalize Q1 budget proposal

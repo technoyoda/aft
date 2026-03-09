@@ -1,0 +1,7 @@
+Portugal Runs Entirely on Renewable Electricity for Record 12 Consecutive Days
+
+Portugal's electricity grid operated without any fossil fuel generation for 288 consecutive hours last month, surpassing the country's previous record of 6 days set in 2023. Wind power contributed 52 percent of generation during the period, followed by hydroelectric at 30 percent and solar at 18 percent.
+
+Grid operator REN credited improved forecasting algorithms and expanded battery storage capacity for maintaining stability throughout the period. Portugal has installed 2.4 gigawatt-hours of grid-scale battery storage since 2022, allowing excess midday solar generation to be shifted to evening demand peaks.
+
+The achievement demonstrates that mid-sized economies with favorable renewable resources can reliably operate fossil-free grids for extended periods. However, energy analysts caution that Portugal's strong hydro resources and interconnections with Spain provide flexibility that landlocked or isolated grids may lack. The country now aims to reach 80 percent annual renewable electricity by 2028, up from the current 65 percent.

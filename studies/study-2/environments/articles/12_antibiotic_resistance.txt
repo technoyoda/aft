@@ -1,0 +1,7 @@
+AI-Discovered Antibiotic Effective Against Drug-Resistant Tuberculosis
+
+Researchers at McMaster University have used a machine learning model to identify a novel antibiotic compound effective against extensively drug-resistant tuberculosis. The compound, named halicin-TB, disrupts bacterial cell membrane potential through a mechanism distinct from all existing TB drugs, making cross-resistance unlikely.
+
+The AI system screened a library of 12 million commercially available chemical compounds, evaluating each for predicted activity against Mycobacterium tuberculosis while filtering for low toxicity to human cells. Halicin-TB emerged as the top candidate and proved effective in mouse models of pulmonary TB at doses that showed no observable side effects.
+
+Drug-resistant TB kills approximately 200,000 people annually, with treatment regimens lasting up to two years and costing over $100,000 per patient in high-income countries. Phase I clinical trials for halicin-TB are scheduled to begin next year, with the WHO fast-tracking the compound through its prequalification program.

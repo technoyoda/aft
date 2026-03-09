@@ -1,0 +1,7 @@
+New Process Recovers 95 Percent of Lithium From Spent EV Batteries
+
+A chemical engineering team at Stanford has developed a hydrometallurgical process that recovers 95 percent of lithium, 98 percent of cobalt, and 97 percent of nickel from spent electric vehicle batteries. The process operates at room temperature and uses citric acid as the primary leaching agent, making it significantly cheaper and less environmentally damaging than current pyrometallurgical methods.
+
+The global stockpile of end-of-life EV batteries is expected to exceed 12 million tonnes by 2030. Current recycling methods recover only 50 to 70 percent of valuable materials while generating toxic waste streams that require further treatment. The new approach produces metal salts that can be directly reused in cathode manufacturing.
+
+Two major battery manufacturers have licensed the technology for pilot-scale testing. If successful at industrial volumes, the process could reduce the mining demand for critical battery minerals by up to 40 percent, easing supply chain constraints that have driven lithium prices to record highs.

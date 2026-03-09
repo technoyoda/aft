@@ -1,0 +1,7 @@
+Gene-Edited Wheat Variety Reduces Water Requirements by 25 Percent
+
+Agricultural scientists at the International Maize and Wheat Improvement Center have developed a wheat variety that requires 25 percent less water while maintaining comparable yields to conventional cultivars. The variety was created using CRISPR to modify genes controlling stomatal density and root architecture.
+
+Field trials across drought-prone regions in Morocco, India, and Australia showed consistent performance advantages under water-limited conditions. The edited wheat develops deeper root systems that access subsoil moisture and has fewer but larger stomata that reduce water loss through transpiration without significantly limiting carbon dioxide uptake for photosynthesis.
+
+The development comes as climate change intensifies water scarcity in major wheat-producing regions. Wheat feeds roughly 2.5 billion people globally, and production is projected to decline by 6 percent for every degree of warming without adaptation measures. Regulatory bodies in Argentina and Australia have cleared the variety for commercial planting, while the European Union continues to deliberate on gene-edited crop policies.

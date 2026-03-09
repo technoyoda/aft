@@ -1,0 +1,7 @@
+New Satellite Maps Global Methane Emissions From Individual Oil and Gas Facilities
+
+The MethaneSAT satellite, launched by the Environmental Defense Fund, has completed its first global survey of methane emissions from oil and gas infrastructure, identifying over 4,000 individual facilities with emission rates exceeding 100 kilograms per hour. The dataset reveals that actual methane leakage from the fossil fuel sector is approximately 70 percent higher than industry self-reported figures.
+
+The satellite measures methane concentrations with a precision of 3 parts per billion across a 200-kilometer swath, sufficient to attribute emissions to specific well pads, processing plants, and pipeline compressor stations. The data is made freely available through a public portal, enabling regulators, investors, and civil society to independently verify corporate emissions claims.
+
+Several major oil companies have already used the early data to identify and repair previously unknown leaks at their facilities. The International Energy Agency estimates that eliminating methane leaks from oil and gas operations is the single most cost-effective near-term climate intervention, as methane's warming effect is 80 times that of carbon dioxide over a 20-year period.

@@ -1,0 +1,7 @@
+Underground Detector Reports New Signal That Could Challenge Dark Matter Theories
+
+The XENONnT experiment, housed 1,400 meters beneath the Gran Sasso mountain in Italy, has detected an unexpected excess of electronic recoil events that does not match known background sources. The signal, observed over 18 months of data collection, appears in an energy range consistent with dark matter particles significantly lighter than the weakly interacting massive particles that most experiments target.
+
+If confirmed, the result could redirect the field toward alternative dark matter candidates such as dark photons or axion-like particles. The signal's statistical significance currently stands at 3.2 sigma — suggestive but below the 5-sigma threshold conventionally required to claim a discovery.
+
+The collaboration is upgrading the detector's sensitivity and has shared preliminary data with the competing LZ and PandaX experiments for independent verification. A confirmed detection would resolve one of the longest-standing questions in physics and could open new avenues for understanding the 85 percent of matter in the universe that remains invisible to telescopes.
