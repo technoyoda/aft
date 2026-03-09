@@ -8,7 +8,7 @@
 >
 > 3. **[The inference rollout is the trajectory](https://technoyoda.github.io/agent-search.html#heading-6)** — the trained agent starts from an initial context, generates an action, receives environmental feedback that enters the context window, and repeats. Each cycle, the context grows and the space of reachable behaviors shifts. This is the process that produces the trajectories $\tau$ we collect and measure.
 >
-> The [Agent Field Theory section](https://technoyoda.github.io/agent-search.html#heading-7) introduces the `field` — the space of reachable behaviors conditioned on the context window plus the trained policy. That formulation is per-timestep and intractable: it would require enumerating every possible future trajectory from every context state. Since model providers (OpenAI, Anthropic, etc.) are black-box entities that will never expose the reward functions that shaped their policies, we cannot compute the per-timestep field analytically. This document replaces it with an empirical approximation built from completed trajectories. 
+> The [Agent Mechanics section](https://technoyoda.github.io/agent-search.html#heading-7) introduces the `field` — the space of reachable behaviors conditioned on the context window plus the trained policy. That formulation is per-timestep and intractable: it would require enumerating every possible future trajectory from every context state. Since model providers (OpenAI, Anthropic, etc.) are black-box entities that will never expose the reward functions that shaped their policies, we cannot compute the per-timestep field analytically. This document replaces it with an empirical approximation built from completed trajectories. 
 ---
 
 ## 1. Primitives and Notation

@@ -1,4 +1,4 @@
-# Why Agent Field Theory
+# Why Agent Mechanics
 
 ## The problem
 

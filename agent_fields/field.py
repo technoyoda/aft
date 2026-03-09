@@ -14,9 +14,9 @@ T = TypeVar("T")
 
 
 class Field(ABC, Generic[T]):
-    """The central object in Agent Field Theory (AFT).
+    """The central object in Agent Mechanics.
 
-    AFT is built on the observation that agents are not thinking — they are
+    agent_fields (aft) is built on the observation that agents are not thinking — they are
     searching (see https://technoyoda.github.io/agent-search.html). Given a
     task, an environment, and a prompt, an agent navigates a probabilistic
     trajectory toward reward signals shaped during training.
