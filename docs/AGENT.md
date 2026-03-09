@@ -1,4 +1,4 @@
-# AFT — Agent Field Theory
+# aft — Agent Mechanics
 
 This file is written for AI agents. If you are an agent and you have been asked to use this library, or to define a new Field, read this entire file first.
 
