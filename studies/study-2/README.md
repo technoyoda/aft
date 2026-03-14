@@ -2,6 +2,8 @@
 
 Can we pwn Claude with data science? This study uses [Agent Behavioral Fields](../../docs/math.md) to measure how Claude agents respond to prompt injection — not just pass/fail, but the *shape* of the behavioral distribution across K trajectories from the same setup.
 
+**Blog post:** [Pwning Claude Code (with data science)](https://technoyoda.github.io/pwning-claude.html)
+
 ## How It Works
 
 ```
@@ -99,17 +101,7 @@ Each field is a different measurement lens (φ) on the same trajectory data:
 
 ## Notebooks
 
-### Part 1 — Naive Injection
-- **`analysis.ipynb`** — Single-fetch experiments. Old sonnet vs new sonnet on `swapped` injection. The first breach (2/5 on old sonnet) and the first delta function (10/10 held on new sonnet).
-
-### Part 2 — Environmental Variation
-- **`analysis_multi_fetch.ipynb`** — All multi-fetch strategies: progressive, rescue, breadcrumb family, redirect family. Cross-strategy comparison table. The breadcrumb breakthrough (D-Width 42.640 vs 0.000 for everything else).
-
-### Encoding Experiments (`notebooks/`)
-- **`ipa_progressive.ipynb`** — IPA-encoded pagination + nudges. 2/5 followed, stochastic decode. Three distinct behavioral modes from same setup.
-- **`ipa_exfil.ipynb`** — IPA pagination + CWD read/include nudges. 0/5 followed — pagination failed, nudges never seen.
-- **`base64_breadcrumb.ipynb`** — Normal articles + base64 pagination pointer. 5/5 followed, D-Width=83.600 — largest field shift in the study.
-- **`base64_full.ipynb`** — Entire payload as base64. Crashes Claude Code (shelved).
+Analysis notebooks for this study are in `blog/notebooks/`. These are interactive Plotly notebooks — one per blog section — that visualize the behavioral fields, trace excerpts, and cross-strategy comparisons. See the [blog post](https://technoyoda.github.io/pwning-claude.html) for the full narrative with embedded notebooks.
 
 ## Key Files
 
